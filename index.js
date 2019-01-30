@@ -4,19 +4,34 @@ const cheerio = require('cheerio')
 const fs = require('fs')
 const http = require('http')
 const opn = require('opn')
+const ArgumentParser = require('argparse').ArgumentParser
 
-const url = process.argv[0].indexOf('node') !== -1 ? process.argv[2] : process.argv[1]
+const argparse = new ArgumentParser({
+  addHelp: true,
+  description: 'Create Open Graph reports and sharing previews for sites running on your localhost'
+})
 
-if (!url) {
-  throw 'No url provided.'
-}
+argparse.addArgument([ '-p', '--port' ], {
+  help: 'The port to run the report server on.'
+})
+argparse.addArgument([ '-u', '--url' ], {
+  help: 'The URL to test.',
+  required: true
+})
+argparse.addArgument([ '-s', '--save' ], {
+  help: 'Whether the report should be saved to a HTML file.',
+  const: true,
+  nargs: 0
+})
+
+const args = argparse.parseArgs()
 
 console.log('generating report...')
 
 puppeteer.launch().then(async browser => {
   const page = await browser.newPage()
   page.setJavaScriptEnabled(true)
-  await page.goto(url, { waitUntil: 'networkidle2' })
+  await page.goto(args.url, { waitUntil: 'networkidle2' })
 
   const renderedContent = await page.evaluate(() => new XMLSerializer().serializeToString(document))
   parseHtml(renderedContent)
@@ -85,19 +100,29 @@ const buildReport = tags => {
         padding: 4px;
       }
     </style>
-    <h1>Open Graph report for <code>${url}</code></h1>
+    <h1>Open Graph report for <code>${args.url}</code></h1>
     <h3>Preview (Facebook)</h3>
     ${card}
     <h3>Data</h3>
     ${table}
   `
 
+  if (args.save) {
+    if (!fs.existsSync('reports/')) {
+      fs.mkdirSync('reports/')
+    }
+
+    const filename = args.url.replace(/http(s)?:\/\//g, '').replace(/\//g, '-').replace(/:/g, '-')
+    fs.writeFileSync(`reports/${filename}-${Date.now()}.html`, html)
+    console.log('saved report to file')
+  }
+
   http.createServer((request, response) => {
-    response.writeHeader(200, {"Content-Type": "text/html"})
+    response.writeHeader(200, { "Content-Type": "text/html" })
     response.write(html)
     response.end()
-  }).listen(8080)
+  }).listen(args.port || 8080)
 
-  console.log('report available at http://localhost:8080')
-  opn('http://localhost:8080')
+  console.log(`report available at http://localhost:${args.port || 8080}`)
+  opn(`http://localhost:${args.port || 8080}`)
 }

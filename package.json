@@ -19,6 +19,7 @@
     "ogdebug": "./index.js"
   },
   "dependencies": {
+    "argparse": "^1.0.10",
     "cheerio": "^1.0.0-rc.2",
     "opn": "^5.4.0",
     "puppeteer": "^1.11.0",
