@@ -28,6 +28,11 @@ argparse.addArgument([ '-s', '--save' ], {
 const args = argparse.parseArgs()
 
 const spinner = ora('generating report...').start()
+setTimeout(() => {
+  spinner.fail()
+  console.log('ogdebug timed out.')
+  process.exit(1)
+}, 20000)
 
 puppeteer.launch().then(async browser => {
   const page = await browser.newPage()
@@ -65,7 +70,8 @@ const parseHtml = html => {
     }
   })
 
-  const ogTags = tags.filter(x => x.property.includes('og:')
+  const ogTags = tags.filter(x =>
+    x.property.includes('og:')
     || x.property.includes('twitter:')
     || x.property === 'title'
     || x.property === 'description'
@@ -82,7 +88,7 @@ const buildReport = tags => {
     <div style="width:500px;background:#f0f0f0;border:1px solid #666">
       ${getContent(tags, 'og:image') ? `<img src=${getContent(tags, 'og:image')} style="width:500px" />` : ''}
       <div style="padding:0 16px">
-        <p>${getContent(tags, 'og:url').replace(/http(s)?:\/\//g, '')}</p>
+        <p>${getContent(tags, 'og:url')}</p>
         <h2>${getContent(tags, 'og:title') || `${getContent(tags, 'title')} <span class="inferred">(inferred)</span>`}</h2>
         <p>${getContent(tags, 'og:description') || `${getContent(tags, 'description')} <span class="inferred">(inferred)</span>`}</p>
       </div>
