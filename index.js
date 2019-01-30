@@ -2,6 +2,7 @@ const puppeteer = require('puppeteer')
 const cheerio = require('cheerio')
 const fs = require('fs')
 const http = require('http')
+const opn = require('opn')
 
 const url = process.argv[2]
 
@@ -68,4 +69,5 @@ const buildReport = tags => {
   }).listen(8080)
 
   console.log('report available at http://localhost:8080')
+  opn('http://localhost:8080')
 }
