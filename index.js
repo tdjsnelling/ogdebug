@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 const puppeteer = require('puppeteer')
 const cheerio = require('cheerio')
 const fs = require('fs')
