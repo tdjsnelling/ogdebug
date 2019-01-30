@@ -76,3 +76,4 @@ typings/
 .fusebox/
 
 reports/
+.DS_Store
