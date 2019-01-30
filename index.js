@@ -5,10 +5,11 @@ const fs = require('fs')
 const http = require('http')
 const opn = require('opn')
 const ArgumentParser = require('argparse').ArgumentParser
+const ora = require('ora')
 
 const argparse = new ArgumentParser({
   addHelp: true,
-  description: 'Create Open Graph reports and sharing previews for sites running on your localhost'
+  description: 'Create Open Graph reports and sharing previews for sites running on your localhost.'
 })
 
 argparse.addArgument([ '-p', '--port' ], {
@@ -26,7 +27,7 @@ argparse.addArgument([ '-s', '--save' ], {
 
 const args = argparse.parseArgs()
 
-console.log('generating report...')
+const spinner = ora('generating report...').start()
 
 puppeteer.launch().then(async browser => {
   const page = await browser.newPage()
@@ -139,6 +140,7 @@ const buildReport = tags => {
     response.end()
   }).listen(args.port || 8080)
 
+  spinner.succeed()
   console.log(`report available at http://localhost:${args.port || 8080}`)
   opn(`http://localhost:${args.port || 8080}`)
 }
