@@ -4,7 +4,7 @@ const fs = require('fs')
 const http = require('http')
 const opn = require('opn')
 
-const url = process.argv[2]
+const url = process.argv[0].indexOf('node') !== -1 ? process.argv[2] : process.argv[1]
 
 if (!url) {
   throw 'No url provided.'
