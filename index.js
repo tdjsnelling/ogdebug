@@ -73,6 +73,7 @@ const parseHtml = html => {
   const ogTags = tags.filter(x =>
     x.property.includes('og:')
     || x.property.includes('twitter:')
+    || x.property.includes('fb:')
     || x.property === 'title'
     || x.property === 'description'
   )
@@ -83,14 +84,32 @@ const getContent = (tags, property) => {
   return tags.filter(x => x.property === property)[0] ? tags.filter(x => x.property === property)[0].content : undefined
 }
 
+const getImageFrom = tags => {
+  return getContent(tags, 'og:image') ? `<img src=${getContent(tags, 'og:image')} style="width:500px" />` : ''
+}
+
+const getHostnameFrom = tags => {
+  // TODO: fallback to fetched URL
+  return getContent(tags, 'og:url') ? (new URL(getContent(tags, 'og:url'))).hostname : undefined
+}
+
+const getTitleFrom = tags => {
+  return getContent(tags, 'og:title') || `${getContent(tags, 'title')} <span class="inferred">(inferred)</span>`
+}
+
+const getDescriptionFrom = tags => {
+  // TODO: fallback to body content
+  return getContent(tags, 'og:description') || `${getContent(tags, 'description')} <span class="inferred">(inferred)</span>`
+}
+
 const buildReport = tags => {
   const card = `
     <div style="width:500px;background:#f0f0f0;border:1px solid #666">
-      ${getContent(tags, 'og:image') ? `<img src=${getContent(tags, 'og:image')} style="width:500px" />` : ''}
+      ${getImageFrom(tags)}
       <div style="padding:0 16px">
-        <p>${getContent(tags, 'og:url')}</p>
-        <h2>${getContent(tags, 'og:title') || `${getContent(tags, 'title')} <span class="inferred">(inferred)</span>`}</h2>
-        <p>${getContent(tags, 'og:description') || `${getContent(tags, 'description')} <span class="inferred">(inferred)</span>`}</p>
+        <p>${getHostnameFrom(tags)}</p>
+        <h2>${getTitleFrom(tags)}</h2>
+        <p>${getDescriptionFrom(tags)}</p>
       </div>
     </div>
   `
