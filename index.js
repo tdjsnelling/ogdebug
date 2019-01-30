@@ -79,9 +79,9 @@ const getContent = (tags, property) => {
 const buildReport = tags => {
   const card = `
     <div style="width:500px;background:#f0f0f0;border:1px solid #666">
-      <img src=${getContent(tags, 'og:image')} style="width:500px" />
+      ${getContent(tags, 'og:image') ? `<img src=${getContent(tags, 'og:image')} style="width:500px" />` : ''}
       <div style="padding:0 16px">
-        <p>${getContent(tags, 'og:url')}</p>
+        <p>${getContent(tags, 'og:url').replace(/http(s)?:\/\//g, '')}</p>
         <h2>${getContent(tags, 'og:title') || `${getContent(tags, 'title')} <span class="inferred">(inferred)</span>`}</h2>
         <p>${getContent(tags, 'og:description') || `${getContent(tags, 'description')} <span class="inferred">(inferred)</span>`}</p>
       </div>
@@ -106,13 +106,14 @@ const buildReport = tags => {
         border-collapse: collapse;
       }
       td {
-        padding: 4px;
+        padding: 4px 8px;
       }
       .inferred {
         color: coral;
         font-size: 12px;
       }
     </style>
+    <title>ogdebug: ${args.url}</title>
     <h1>Open Graph report for <code>${args.url}</code></h1>
     <h3>Preview (Facebook)</h3>
     ${card}
