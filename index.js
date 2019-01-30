@@ -46,7 +46,7 @@ const parseHtml = html => {
 }
 
 const getContent = (tags, property) => {
-  return tags.filter(x => x.property === 'og:image')[0] ? tags.filter(x => x.property === property)[0].content : undefined
+  return tags.filter(x => x.property === property)[0] ? tags.filter(x => x.property === property)[0].content : undefined
 }
 
 const buildReport = tags => {
