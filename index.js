@@ -28,7 +28,7 @@ argparse.addArgument([ '-s', '--save' ], {
 const args = argparse.parseArgs()
 
 const spinner = ora('generating report...').start()
-setTimeout(() => {
+const timeout = setTimeout(() => {
   spinner.fail()
   console.log('ogdebug timed out.')
   process.exit(1)
@@ -147,6 +147,7 @@ const buildReport = tags => {
   }).listen(args.port || 8080)
 
   spinner.succeed()
+  clearTimeout(timeout)
   console.log(`report available at http://localhost:${args.port || 8080}`)
   opn(`http://localhost:${args.port || 8080}`)
 }
