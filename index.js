@@ -10,6 +10,8 @@ if (!url) {
   throw 'No url provided.'
 }
 
+console.log('generating report...')
+
 puppeteer.launch().then(async browser => {
   const page = await browser.newPage()
   page.setJavaScriptEnabled(true)
@@ -82,7 +84,7 @@ const buildReport = tags => {
         padding: 4px;
       }
     </style>
-    <h1>Open Graph report</h1>
+    <h1>Open Graph report for <code>${url}</code></h1>
     <h3>Preview (Facebook)</h3>
     ${card}
     <h3>Data</h3>
