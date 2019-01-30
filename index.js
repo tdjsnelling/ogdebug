@@ -44,6 +44,11 @@ const parseHtml = html => {
   const meta = $('meta')
   let tags = []
 
+  tags.push({
+    property: 'title',
+    content: $('title').text()
+  })
+
   meta.each((i, el) => {
     if ($(el).attr('name')) {
       tags.push({
@@ -59,7 +64,11 @@ const parseHtml = html => {
     }
   })
 
-  const ogTags = tags.filter(x => x.property.includes('og:') || x.property.includes('twitter:'))
+  const ogTags = tags.filter(x => x.property.includes('og:')
+    || x.property.includes('twitter:')
+    || x.property === 'title'
+    || x.property === 'description'
+  )
   buildReport(ogTags)
 }
 
@@ -73,8 +82,8 @@ const buildReport = tags => {
       <img src=${getContent(tags, 'og:image')} style="width:500px" />
       <div style="padding:0 16px">
         <p>${getContent(tags, 'og:url')}</p>
-        <h2>${getContent(tags, 'og:title')}</h2>
-        <p>${getContent(tags, 'og:description')}</p>
+        <h2>${getContent(tags, 'og:title') || `${getContent(tags, 'title')} <span class="inferred">(inferred)</span>`}</h2>
+        <p>${getContent(tags, 'og:description') || `${getContent(tags, 'description')} <span class="inferred">(inferred)</span>`}</p>
       </div>
     </div>
   `
@@ -98,6 +107,10 @@ const buildReport = tags => {
       }
       td {
         padding: 4px;
+      }
+      .inferred {
+        color: coral;
+        font-size: 12px;
       }
     </style>
     <h1>Open Graph report for <code>${args.url}</code></h1>
