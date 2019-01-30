@@ -41,16 +41,23 @@ const parseHtml = html => {
     }
   })
 
-  const ogTags = tags.filter(x => x.property.includes('og:'))
+  const ogTags = tags.filter(x => x.property.includes('og:') || x.property.includes('twitter:'))
   buildReport(ogTags)
+}
+
+const getContent = (tags, property) => {
+  return tags.filter(x => x.property === 'og:image')[0] ? tags.filter(x => x.property === property)[0].content : undefined
 }
 
 const buildReport = tags => {
   const card = `
     <div style="width:500px;background:#f0f0f0;border:1px solid #666">
-      <img src=${tags.filter(x => x.property === 'og:image')[0] ? tags.filter(x => x.property === 'og:image')[0].content : undefined} style="width:500px" />
-      <h1>${tags.filter(x => x.property === 'og:title')[0].content}</h1>
-      <p>${tags.filter(x => x.property === 'og:description')[0].content}</p>
+      <img src=${getContent(tags, 'og:image')} style="width:500px" />
+      <div style="padding:0 16px">
+        <p>${getContent(tags, 'og:url')}</p>
+        <h2>${getContent(tags, 'og:title')}</h2>
+        <p>${getContent(tags, 'og:description')}</p>
+      </div>
     </div>
   `
 
@@ -60,7 +67,27 @@ const buildReport = tags => {
   })
   table = `<table>${table}</table>`
 
-  const html = card + '<br />' + table
+  const html = `
+    <style>
+      body {
+        font-family: sans-serif;
+      }
+      table, td, th {
+        border: 1px solid #666;
+      }
+      table {
+        border-collapse: collapse;
+      }
+      td {
+        padding: 4px;
+      }
+    </style>
+    <h1>Open Graph report</h1>
+    <h3>Preview (Facebook)</h3>
+    ${card}
+    <h3>Data</h3>
+    ${table}
+  `
 
   http.createServer((request, response) => {
     response.writeHeader(200, {"Content-Type": "text/html"})
