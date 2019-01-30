@@ -4,7 +4,17 @@
   "main": "index.js",
   "author": "Tom Snelling",
   "license": "MIT",
+  "homepage": "https://github.com/tdjsnelling/ogdebug#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tdjsnelling/ogdebug.git"
+  },
   "private": false,
+  "keywords": [
+    "open graph",
+    "og",
+    "meta"
+  ],
   "bin": {
     "ogdebug": "./index.js"
   },
