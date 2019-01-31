@@ -6,23 +6,31 @@ const http = require('http')
 const opn = require('opn')
 const ArgumentParser = require('argparse').ArgumentParser
 const ora = require('ora')
+const CliTable = require('cli-table')
+const pkgJson = require('./package.json')
 
 const argparse = new ArgumentParser({
+  version: `v${pkgJson.version}`,
   addHelp: true,
   description: 'Create Open Graph reports and sharing previews for sites running on your localhost.'
 })
 
-argparse.addArgument([ '-p', '--port' ], {
-  help: 'The port to run the report server on.'
-})
 argparse.addArgument([ '-u', '--url' ], {
   help: 'The URL to test.',
   required: true
 })
-argparse.addArgument([ '-s', '--save' ], {
-  help: 'Whether the report should be saved to a HTML file.',
+argparse.addArgument([ '-V', '--visual' ], {
+  help: 'Generate a HTML report.',
   const: true,
   nargs: 0
+})
+argparse.addArgument([ '-s', '--save' ], {
+  help: 'Whether the report should be saved to a HTML file. Only applies if -V flag is present.',
+  const: true,
+  nargs: 0
+})
+argparse.addArgument([ '-p', '--port' ], {
+  help: 'The port to run the report server on. Only applies if -V flag is present.'
 })
 
 const args = argparse.parseArgs()
@@ -91,7 +99,7 @@ const parseHtml = html => {
     }
   })
 
-  const ogTags = tags.filter(x =>
+  tags = tags.filter(x =>
     x.property.includes('og:')
     || x.property.includes('twitter:')
     || x.property.includes('fb:')
@@ -99,7 +107,13 @@ const parseHtml = html => {
     || x.property === 'description'
     || x.property === 'descriptionFallback'
   )
-  buildReport(ogTags)
+
+  if (args.visual) {
+    buildHtmlReport(tags)
+  }
+  else {
+    buildCliReport(tags)
+  }
 }
 
 const getContent = (tags, property) => {
@@ -133,7 +147,22 @@ const getDescriptionFrom = tags => {
   return `${bodyContent.slice(0, 155)} <span class="inferred">(inferred)</span>`
 }
 
-const buildReport = tags => {
+const buildCliReport = tags => {
+  const table = new CliTable({
+    head: [ 'property', 'content' ]
+  })
+
+  tags.forEach((tag, i) => {
+    table.push([ tag.property, tag.content ])
+  })
+
+  spinner.succeed()
+  console.log(`\nOpen Graph report for ${args.url}`)
+  console.log(table.toString())
+  process.exit(0)
+}
+
+const buildHtmlReport = tags => {
   const card = `<div style="width:500px;background:#f0f0f0;border:1px solid #666">
     ${getImageFrom(tags)}
     <div style="padding:0 16px">

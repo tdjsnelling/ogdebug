@@ -2,19 +2,21 @@
 
 Create Open Graph reports and sharing previews for sites running on your localhost (or not).
 
-### Usage
+### Installation
 
 ```
 npm i ogdebug -g
 ```
 
+### Usage
+
 ```
-ogdebug -u <url> [-p PORT] [-s]
+ogdebug -u <url> [-V] [-s] [-p]
 ```
 
-A report will be generated and opened in your default browser.
+A report will be generated in your terminal (or browser with the `-V` flag).
 
-If the `-s` flag is passed, the report will also be saved to disk.
+Run `ogdebug -h` for a full list of options.
 
 ### License
 
