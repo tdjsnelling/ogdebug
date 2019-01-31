@@ -58,7 +58,7 @@ const getLongestParagraph = ($, elements) => {
     }
   })
 
-  return currentLongest
+  return currentLongest.slice(0, 155)
 }
 
 const parseHtml = html => {
