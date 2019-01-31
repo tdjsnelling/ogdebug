@@ -49,6 +49,18 @@ puppeteer.launch().then(async browser => {
   browser.close()
 })
 
+const getLongestParagraph = ($, elements) => {
+  let currentLongest = ''
+
+  elements.each((i, el) => {
+    if ($(el).text().length > currentLongest.length) {
+      currentLongest = $(el).text()
+    }
+  })
+
+  return currentLongest
+}
+
 const parseHtml = html => {
   const $ = cheerio.load(html)
   const meta = $('meta')
@@ -57,6 +69,11 @@ const parseHtml = html => {
   tags.push({
     property: 'title',
     content: $('title').text()
+  })
+
+  tags.push({
+    property: 'descriptionFallback',
+    content: getLongestParagraph($, $('p'))
   })
 
   meta.each((i, el) => {
@@ -80,6 +97,7 @@ const parseHtml = html => {
     || x.property.includes('fb:')
     || x.property === 'title'
     || x.property === 'description'
+    || x.property === 'descriptionFallback'
   )
   buildReport(ogTags)
 }
@@ -93,7 +111,6 @@ const getImageFrom = tags => {
 }
 
 const getHostnameFrom = tags => {
-  // TODO: fallback to fetched URL
   return getContent(tags, 'og:url') ? (new URL(getContent(tags, 'og:url'))).hostname : `${(new URL(args.url)).hostname} <span class="inferred">(inferred)</span>`
 }
 
@@ -102,8 +119,18 @@ const getTitleFrom = tags => {
 }
 
 const getDescriptionFrom = tags => {
-  // TODO: fallback to body content
-  return getContent(tags, 'og:description') || `${getContent(tags, 'description')} <span class="inferred">(inferred)</span>`
+  const ogDescription = getContent(tags, 'og:description')
+  const metaDescription = getContent(tags, 'description')
+  const bodyContent = getContent(tags, 'descriptionFallback')
+
+  if (ogDescription) {
+    return ogDescription
+  }
+  else if (metaDescription) {
+    return `${metaDescription} <span class="inferred">(inferred)</span>`
+  }
+
+  return `${bodyContent.slice(0, 155)} <span class="inferred">(inferred)</span>`
 }
 
 const buildReport = tags => {
