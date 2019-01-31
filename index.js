@@ -34,6 +34,10 @@ const timeout = setTimeout(() => {
   process.exit(1)
 }, 20000)
 
+if (!args.url.startsWith('http')) {
+  args.url = 'http://' + args.url
+}
+
 puppeteer.launch().then(async browser => {
   const page = await browser.newPage()
   page.setJavaScriptEnabled(true)
