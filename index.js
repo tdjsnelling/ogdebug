@@ -94,7 +94,7 @@ const getImageFrom = tags => {
 
 const getHostnameFrom = tags => {
   // TODO: fallback to fetched URL
-  return getContent(tags, 'og:url') ? (new URL(getContent(tags, 'og:url'))).hostname : undefined
+  return getContent(tags, 'og:url') ? (new URL(getContent(tags, 'og:url'))).hostname : `${(new URL(args.url)).hostname} <span class="inferred">(inferred)</span>`
 }
 
 const getTitleFrom = tags => {
