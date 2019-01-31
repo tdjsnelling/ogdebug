@@ -37,8 +37,7 @@ const args = argparse.parseArgs()
 
 const spinner = ora('generating report...').start()
 const timeout = setTimeout(() => {
-  spinner.fail()
-  console.log('ogdebug timed out.')
+  spinner.fail('ogdebug timed out.')
   process.exit(1)
 }, 20000)
 
@@ -49,10 +48,16 @@ if (!args.url.startsWith('http')) {
 puppeteer.launch().then(async browser => {
   const page = await browser.newPage()
   page.setJavaScriptEnabled(true)
-  await page.goto(args.url, { waitUntil: 'networkidle2' })
 
-  const renderedContent = await page.evaluate(() => new XMLSerializer().serializeToString(document))
-  parseHtml(renderedContent)
+  try {
+    await page.goto(args.url, { waitUntil: 'networkidle2' })
+    const renderedContent = await page.evaluate(() => new XMLSerializer().serializeToString(document))
+    parseHtml(renderedContent)
+  }
+  catch (err) {
+    spinner.fail(err)
+    process.exit(1)
+  }
 
   browser.close()
 })
@@ -149,7 +154,10 @@ const getDescriptionFrom = tags => {
 
 const buildCliReport = tags => {
   const table = new CliTable({
-    head: [ 'property', 'content' ]
+    head: [ 'property', 'content' ],
+    style: {
+      head: [ 'cyan' ]
+    }
   })
 
   tags.forEach((tag, i) => {
