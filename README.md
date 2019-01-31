@@ -2,6 +2,8 @@
 
 Create Open Graph reports and sharing previews for sites running on your localhost (or not).
 
+![screenshot](carbon.png)
+
 ### Installation
 
 ```
